@@ -1,0 +1,262 @@
+<script type="text/html" data-template-name="netsuite-rest-api-request">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+    <div class="form-row">
+        <label for="node-input-oauth"><i class="fa fa-cogs"></i> OAuth Config</label>
+        <input type="text" id="node-input-oauth">
+    </div>
+    <div class="form-row">
+        <label for="node-input-method"><i class="fa fa-exchange"></i> HTTP Method</label>
+        <select id="node-input-method" onchange="toggleFieldsNetsuite()">
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="PATCH">PATCH</option>
+            <option value="DELETE">DELETE</option>
+        </select>
+    </div>
+    <div class="form-row">
+        <label for="node-input-url"><i class="fa fa-globe"></i> URL</label>
+        <input type="text" id="node-input-url" placeholder="https://">
+    </div>
+    <div class="form-row" id="node-input-limit-container" style="display: none;">
+        <label for="node-input-limit"><i class="fa fa-keyboard"></i> Limit</label>
+        <input type="number" id="node-input-limit" min="1" max="1000" placeholder="Enter the limit">
+    </div>
+    <div class="form-row" id="node-input-offset-container" style="display: none;">
+        <label for="node-input-offset"><i class="fa fa-clock"></i> Offset</label>
+        <input type="number" id="node-input-offset" placeholder="Enter the offset">
+    </div>
+    <div class="form-row" id="node-input-objectid-container" style="display: none;">
+        <label for="node-input-objectid"><i class="fa fa-clock"></i> ID of the object</label>
+        <input type="text" id="node-input-objectid" placeholder="Enter the ID of the object">
+    </div>
+    <div class="form-row" id="node-input-objectexternalid-container" style="display: none;">
+        <label for="node-input-objectexternalid"><i class="fa fa-clock"></i> External ID of the object</label>
+        <input type="text" id="node-input-objectexternalid" placeholder="Enter the external ID of the object">
+    </div>
+    <div class="form-row" id="node-input-bodyNetsuite-container" style="display: none;">
+        <label for="node-input-bodyNetsuite"><i class="fa fa-globe"></i> Body</label>
+        <textarea id="node-input-bodyNetsuite" rows="4" placeholder="Enter body content"></textarea>
+    </div>
+    <div class="form-row">
+        <label for="node-input-netsuiteobject"><i class="fa fa-tasks"></i> Objects</label>
+        <select id="node-input-netsuiteobject">
+            <option value="" disabled selected>Choose an object...</option>
+            <option value="account">Account</option>
+            <option value="accountingPeriod">Accounting Period</option>
+            <option value="advIntercompanyJournalEntry">Adv Intercompany Journal Entry</option>
+            <option value="assemblyBuild">Assembly Build</option>
+            <option value="assemblyItem">Assembly Item</option>
+            <option value="assemblyUnbuild">Assembly Unbuild</option>
+            <option value="billingAccount">Billing Account</option>
+            <option value="billingRevenueEvent">Billing Revenue Event</option>
+            <option value="billingSchedule">Billing Schedule</option>
+            <option value="bin">Bin</option>
+            <option value="binTransfer">Bin Transfer</option>
+            <option value="blanketPurchaseOrder">Blanket Purchase Order</option>
+            <option value="bom">BOM</option>
+            <option value="bomRevision">BOM Revision</option>
+            <option value="calendarEvent">Calendar Event</option>
+            <option value="campaign">Campaign</option>
+            <option value="campaignResponse">Campaign Response</option>
+            <option value="cashRefund">Cash Refund</option>
+            <option value="cashSale">Cash Sale</option>
+            <option value="charge">Charge</option>
+            <option value="check">Check</option>
+            <option value="classification">Classification</option>
+            <option value="commerceCategory">Commerce Category</option>
+            <option value="competitor">Competitor</option>
+            <option value="consolidatedExchangeRate">Consolidated Exchange Rate</option>
+            <option value="contact">Contact</option>
+            <option value="contactCategory">Contact Category</option>
+            <option value="contactRole">Contact Role</option>
+            <option value="costCategory">Cost Category</option>
+            <option value="couponCode">Coupon Code</option>
+            <option value="creditCardCharge">Credit Card Charge</option>
+            <option value="creditCardRefund">Credit Card Refund</option>
+            <option value="creditMemo">Credit Memo</option>
+            <option value="currency">Currency</option>
+            <option value="currencyRate">Currency Rate</option>
+            <option value="customer">Customer</option>
+            <option value="customerCategory">Customer Category</option>
+            <option value="customerDeposit">Customer Deposit</option>
+            <option value="customerMessage">Customer Message</option>
+            <option value="customerPayment">Customer Payment</option>
+            <option value="customerRefund">Customer Refund</option>
+            <option value="customerStatus">Customer Status</option>
+            <option value="customerSubsidiaryRelationship">Customer Subsidiary Relationship</option>
+            <option value="department">Department</option>
+            <option value="deposit">Deposit</option>
+            <option value="depositApplication">Deposit Application</option>
+            <option value="descriptionItem">Description Item</option>
+            <option value="discountItem">Discount Item</option>
+            <option value="downloadItem">Download Item</option>
+            <option value="emailTemplate">Email Template</option>
+            <option value="employee">Employee</option>
+            <option value="estimate">Estimate</option>
+            <option value="expenseCategory">Expense Category</option>
+            <option value="expenseReport">Expense Report</option>
+            <option value="fairValuePrice">Fair Value Price</option>
+            <option value="fulfillmentRequest">Fulfillment Request</option>
+            <option value="giftCertificateItem">Gift Certificate Item</option>
+            <option value="inboundShipment">Inbound Shipment</option>
+            <option value="intercompanyJournalEntry">Intercompany Journal Entry</option>
+            <option value="intercompanyTransferOrder">Intercompany Transfer Order</option>
+            <option value="inventoryAdjustment">Inventory Adjustment</option>
+            <option value="inventoryCostRevaluation">Inventory Cost Revaluation</option>
+            <option value="inventoryCount">Inventory Count</option>
+            <option value="inventoryItem">Inventory Item</option>
+            <option value="inventoryNumber">Inventory Number</option>
+            <option value="inventoryTransfer">Inventory Transfer</option>
+            <option value="invoice">Invoice</option>
+            <option value="issue">Issue</option>
+            <option value="itemFulfillment">Item Fulfillment</option>
+            <option value="itemGroup">Item Group</option>
+            <option value="itemReceipt">Item Receipt</option>
+            <option value="itemRevision">Item Revision</option>
+            <option value="job">Job</option>
+            <option value="jobStatus">Job Status</option>
+            <option value="jobType">Job Type</option>
+            <option value="journalEntry">Journal Entry</option>
+            <option value="kitItem">Kit Item</option>
+            <option value="location">Location</option>
+            <option value="manufacturingCostTemplate">Manufacturing Cost Template</option>
+            <option value="manufacturingOperationTask">Manufacturing Operation Task</option>
+            <option value="manufacturingRouting">Manufacturing Routing</option>
+            <option value="markupItem">Markup Item</option>
+            <option value="message">Message</option>
+            <option value="nexus">Nexus</option>
+            <option value="nonInventoryPurchaseItem">Non-Inventory Purchase Item</option>
+            <option value="nonInventoryResaleItem">Non-Inventory Resale Item</option>
+            <option value="nonInventorySaleItem">Non-Inventory Sale Item</option>
+            <option value="noteType">Note Type</option>
+            <option value="opportunity">Opportunity</option>
+            <option value="otherChargePurchaseItem">Other Charge Purchase Item</option>
+            <option value="otherChargeResaleItem">Other Charge Resale Item</option>
+            <option value="otherChargeSaleItem">Other Charge Sale Item</option>
+            <option value="otherName">Other Name</option>
+            <option value="otherNameCategory">Other Name Category</option>
+            <option value="partner">Partner</option>
+            <option value="paycheck">Paycheck</option>
+            <option value="paymentItem">Payment Item</option>
+            <option value="paymentMethod">Payment Method</option>
+            <option value="phoneCall">Phone Call</option>
+            <option value="priceBook">Price Book</option>
+            <option value="priceLevel">Price Level</option>
+            <option value="pricePlan">Price Plan</option>
+            <option value="pricingGroup">Pricing Group</option>
+            <option value="projectTask">Project Task</option>
+            <option value="promotionCode">Promotion Code</option>
+            <option value="purchaseContract">Purchase Contract</option>
+            <option value="purchaseOrder">Purchase Order</option>
+            <option value="purchaseRequisition">Purchase Requisition</option>
+            <option value="resourceGroup">Resource Group</option>
+        </select>
+    </div>
+    
+    <div class="form-tips">
+        Specify the URL for the NetSuite REST API request and select the HTTP method to use.
+    </div>
+    </script>
+<script type="text/javascript">
+
+    function toggleFieldsNetsuite() {
+        const method = document.getElementById('node-input-method').value;
+
+        document.getElementById('node-input-limit-container').style.display = method === 'GET' ? 'block' : 'none';
+        document.getElementById('node-input-offset-container').style.display = method === 'GET' ? 'block' : 'none';
+        document.getElementById('node-input-bodyNetsuite-container').style.display = ['POST', 'PUT', 'PATCH'].includes(method) ? 'block' : 'none';
+        document.getElementById('node-input-objectid-container').style.display = ['GET', 'PATCH', 'DELETE'].includes(method) ? 'block' : 'none';
+        document.getElementById('node-input-objectexternalid-container').style.display = method === 'PUT' ? 'block' : 'none';
+
+        clearIrrelevantFields(method);
+
+        const limitInput = document.getElementById("node-input-limit");
+        const offsetInput = document.getElementById("node-input-offset");
+        const objectIdInput = document.getElementById("node-input-objectid");
+
+        if (method === 'GET' && limitInput && offsetInput && objectIdInput) {
+            [limitInput, offsetInput, objectIdInput].forEach(input => {
+                input.addEventListener('input', handleInputChange);
+            });
+
+            handleInputChange();
+        }
+    }
+    function handleInputChange() {
+        const limitInput = document.getElementById("node-input-limit");
+        const offsetInput = document.getElementById("node-input-offset");
+        const objectIdInput = document.getElementById("node-input-objectid");
+
+        if (!limitInput || !offsetInput || !objectIdInput) return;
+
+        const isLimitOffsetFilled = limitInput.value.trim() !== "" || offsetInput.value.trim() !== "";
+        const isObjectIdFilled = objectIdInput.value.trim() !== "";
+
+        objectIdInput.disabled = isLimitOffsetFilled;
+        limitInput.disabled = isObjectIdFilled;
+        offsetInput.disabled = isObjectIdFilled;
+    }
+    function clearIrrelevantFields(method) {
+        const limitInput = document.getElementById("node-input-limit");
+        const offsetInput = document.getElementById("node-input-offset");
+        const objectIdInput = document.getElementById("node-input-objectid");
+        const objectExternalIdInput = document.getElementById("node-input-objectexternalid");
+        const bodyInput = document.getElementById("node-input-bodyNetsuite");
+
+        if (!limitInput || !offsetInput || !objectIdInput || !objectExternalIdInput || !bodyInput) return;
+
+        if (method !== 'GET') {
+            limitInput.value = '';
+            offsetInput.value = '';
+        }
+
+        if (!['GET', 'PATCH', 'DELETE'].includes(method)) {
+            objectIdInput.value = '';
+        }
+
+        if (method !== 'PUT') {
+            objectExternalIdInput.value = '';
+        }
+
+        if (!['POST', 'PUT', 'PATCH'].includes(method)) {
+            bodyInput.value = '';
+        }
+    }
+
+
+
+
+
+    RED.nodes.registerType('netsuite-rest-api-request', {
+        category: 'netsuite',
+        color: '#a6bbcf',
+        defaults: {
+            name: { value: "" },
+            oauth: { type: "netsuite-oauth-config", required: true },
+            url: { value: "https://" },
+            headers: { value: "" },
+            bodyNetsuite: { value: "" },
+            method: { value: "GET" },
+            netsuiteobject: { value: "", required: true },
+            limit: { value: "" },
+            offset: { value: "" },
+            objectid: { value: "" },
+            objectexternalid: { value: "" }
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: 'file.png',
+        label: function () {
+            return this.name || "NetSuite REST APIRequest";
+        },
+        oneditprepare: function () {
+            toggleFieldsNetsuite();
+
+            $("#node-input-method").on("change", toggleFieldsNetsuite);
+        }
+    });
+</script>

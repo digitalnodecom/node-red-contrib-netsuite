@@ -1,0 +1,37 @@
+<script type="text/html" data-template-name="netsuite-suiteql-api-request">
+    <div class="form-row">
+        <label for="node-input-oauth"><i class="fa fa-cogs"></i> OAuth Config</label>
+        <input type="text" id="node-input-oauth">
+    </div>
+    <div class="form-row">
+        <label for="node-input-url"><i class="fa fa-globe"></i> URL</label>
+        <input type="text" id="node-input-url" placeholder="https://">
+    </div>
+    <div class="form-row">
+        <label for="node-input-body"><i class="fa fa-globe"></i> Body</label>
+        <textarea id="node-input-body" rows="4" placeholder="Enter body content"></textarea>
+    </div>
+
+    
+    <div class="form-tips">
+        Specify the URL for the NetSuite SuiteQL API Request and put the query in the body.
+    </div>
+    </script>
+    <script type="text/javascript">
+       
+        RED.nodes.registerType('netsuite-suiteql-api-request', {
+            category: 'netsuite',
+            color: '#a6bbcf',
+            defaults: {
+                oauth: { type: "netsuite-oauth-config", required: true },
+                url: { value: "https://" },
+                body: { value: "" },
+            },
+            inputs: 1,
+            icon:"file.png",
+            outputs: 1,
+            label: function () {
+                return this.name || "NetSuite SuiteQL API Request";
+            }
+        });
+    </script>
