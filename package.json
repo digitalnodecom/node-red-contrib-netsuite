@@ -9,9 +9,9 @@
     },
     "node-red": {
         "nodes": {
-            "netsuite-REST-API-Request": "netsuite-REST-API-request.js",
+            "netsuite-REST-API-Request": "netsuite-rest-api-request.js",
             "netsuite-oauth-config": "netsuite-oauth-config.js",
-            "netsuite-SuiteQl-API-Request": "netsuite-SuiteQl-API-request.js"
+            "netsuite-SuiteQl-API-Request": "netsuite-suiteql-api-request.js"
         }
     },
     "repository": {
