@@ -1,10 +1,10 @@
 const crypto = require('crypto');
 const axios = require('axios');
+const url = require('url'); // Add URL module for better URL parsing
 
 function generateNonce() {
     return crypto.randomBytes(16).toString('hex');
 }
-
 
 function generateBaseString(method, url, oauthParams, queryParams = {}) {
     const allParams = {
@@ -23,6 +23,7 @@ function generateBaseString(method, url, oauthParams, queryParams = {}) {
         .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
         .join('&');
 
+    // Extract base URL without query parameters
     const baseUrl = url.split('?')[0];
 
     return [
@@ -32,10 +33,31 @@ function generateBaseString(method, url, oauthParams, queryParams = {}) {
     ].join('&');
 }
 
-function generateAuthHeader(node, method, url, queryParams = {}) {
-    const realm = node.oauth.realm ;
+function generateAuthHeader(node, method, fullUrl, queryParams = {}) {
+    const realm = node.oauth.realm;
     const timestamp = Math.floor(Date.now() / 1000).toString();
     const nonce = generateNonce();
+
+    // Parse the URL to separate base URL and existing query parameters
+    const parsedUrl = new URL(fullUrl);
+    const baseUrl = parsedUrl.origin + parsedUrl.pathname;
+    
+    // Combine existing URL query parameters with passed queryParams
+    const combinedParams = {};
+    
+    // First get any params already in the URL
+    for (const [key, value] of parsedUrl.searchParams) {
+        combinedParams[key] = value;
+    }
+    
+    // Then add any additional query params
+    if (queryParams instanceof URLSearchParams) {
+        for (const [key, value] of queryParams) {
+            combinedParams[key] = value;
+        }
+    } else {
+        Object.assign(combinedParams, queryParams);
+    }
 
     let oauthParams = {
         oauth_consumer_key: node.oauth.consumerKey,
@@ -46,21 +68,11 @@ function generateAuthHeader(node, method, url, queryParams = {}) {
         oauth_version: '1.0'
     };
 
-    // Convert URLSearchParams to plain object
-    const plainQueryParams = {};
-    if (queryParams instanceof URLSearchParams) {
-        for (const [key, value] of queryParams) {
-            plainQueryParams[key] = value;
-        }
-    } else {
-        Object.assign(plainQueryParams, queryParams);
-    }
-
-    const baseString = generateBaseString(method, url, oauthParams, plainQueryParams);
+    const baseString = generateBaseString(method, baseUrl, oauthParams, combinedParams);
     const signingKey = `${encodeURIComponent(node.oauth.consumerSecret)}&${encodeURIComponent(node.oauth.tokenSecret)}`;
     const signature = crypto.createHmac('sha256', signingKey).update(baseString).digest('base64');
 
-    // **Construct OAuth Header**
+    // Construct OAuth Header
     let authHeader = 'OAuth ' + [
         `realm="${encodeURIComponent(realm)}"`,
         `oauth_consumer_key="${encodeURIComponent(node.oauth.consumerKey)}"`,
@@ -77,60 +89,78 @@ function generateAuthHeader(node, method, url, queryParams = {}) {
 
 async function executeRequest(node, config, msg) {
     try {
-        const url = config.url || msg.url;
-        const method = config.method || msg.method;
-        const netsuiteobject = config.netsuiteobject || msg.netsuiteobject;
-        const limit = config.limit || msg.limit;
-        const offset = config.offset || msg.offset;
-        const objectid = config.objectid || msg.objectid;
-        const bodyNetsuite = config.bodyNetsuite || msg.bodyNetsuite;
-        const objectexternalid = config.objectexternalid || msg.objectexternalid;
-
-
-        if (!url) {
+        // Get URL and method from config or msg
+        let requestUrl = config.url || msg.url;
+        const method = config.method || msg.method || 'GET';
+        
+        if (!requestUrl) {
             throw new Error("The URL is missing. Please provide a valid URL.");
         }
         if (!node.oauth || !node.oauth.consumerKey || !node.oauth.consumerSecret || !node.oauth.token || !node.oauth.tokenSecret) {
             throw new Error("OAuth credentials are missing or incomplete.");
         }
 
-        let finalUrl = url;
-        if (netsuiteobject) {
-            finalUrl += `/${netsuiteobject}`;
+        // Check if this is a pagination URL from a previous response
+        // If so, use it directly without modifying
+        const isPaginationUrl = msg.isPaginationUrl === true;
+        
+        if (!isPaginationUrl) {
+            // Only append these parameters if not using a pagination URL
+            const netsuiteobject = config.netsuiteobject || msg.netsuiteobject;
+            const objectid = config.objectid || msg.objectid;
+            const objectexternalid = config.objectexternalid || msg.objectexternalid;
+            
+            // Build the final URL with resource path components
+            if (netsuiteobject) {
+                requestUrl += `/${netsuiteobject}`;
+            }
+            if (objectid) {
+                requestUrl += `/${objectid}`;
+            }
+            if (objectexternalid) {
+                requestUrl += `/eid:${objectexternalid}`;
+            }
         }
-        if (objectid) {
-            finalUrl += `/${objectid}`;
+        
+        // Parse the URL to extract existing query params
+        const parsedUrl = new URL(requestUrl);
+        const existingParams = parsedUrl.searchParams;
+        
+        // Only add limit/offset if not using pagination URL
+        if (!isPaginationUrl) {
+            const limit = config.limit || msg.limit;
+            const offset = config.offset || msg.offset;
+            
+            if (limit && !existingParams.has('limit')) existingParams.set('limit', limit);
+            if (offset && !existingParams.has('offset')) existingParams.set('offset', offset);
         }
-        if(objectexternalid){
-            finalUrl += `/eid:${objectexternalid}`;
-        }
-
-        let queryParams = new URLSearchParams();
-        if (limit) queryParams.append("limit", limit);
-        if (offset) queryParams.append("offset", offset);
-
-        const authHeader = generateAuthHeader(node, method, finalUrl, queryParams);
-
-        if (queryParams.toString()) {
-            finalUrl += `?${queryParams.toString()}`;
-        }
+        
+        // Generate the OAuth header with the URL's base part and all combined params
+        const authHeader = generateAuthHeader(node, method, requestUrl, existingParams);
+        
+        // Prepare the final request options
+        const bodyNetsuite = config.bodyNetsuite || msg.bodyNetsuite;
         
         const requestOptions = {
             method: method.toUpperCase(),
-            url: finalUrl,
+            url: requestUrl,
             headers: {
                 'Authorization': authHeader,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
             },
             data: bodyNetsuite ? JSON.parse(bodyNetsuite) : null,
         };
-       
-
+        
+        node.status({ fill: "blue", shape: "dot", text: "requesting..." });
         const response = await axios(requestOptions);
+        
         msg.payload = {
             headers: response.headers,
             statusCode: response.status,
             data: response.data,
         };
+        
         node.status({ fill: "green", shape: "dot", text: "success" });
         node.send(msg);
     } catch (error) {
@@ -149,8 +179,6 @@ async function executeRequest(node, config, msg) {
     }
 }
 
-
-
 module.exports = function (RED) {
     function NetsuiteRestApiRequest(config) {
         RED.nodes.createNode(this, config);
@@ -162,5 +190,4 @@ module.exports = function (RED) {
         });
     }
 
-    RED.nodes.registerType('netsuite-rest-api-request', NetsuiteRestApiRequest);
-};
+    RED.nodes.registerType('netsuite-rest-api-request', NetsuiteRestApiRequest)};
