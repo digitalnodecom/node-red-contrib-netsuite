@@ -77,14 +77,14 @@ function generateAuthHeader(node, method, url, queryParams = {}) {
 
 async function executeRequest(node, config, msg) {
     try {
-        const url = config.url || msg.payload.url;
-        const method = config.method || msg.payload.method;
-        const netsuiteobject = config.netsuiteobject || msg.payload.netsuiteobject;
-        const limit = config.limit || msg.payload.limit;
-        const offset = config.offset || msg.payload.offset;
-        const objectid = config.objectid || msg.payload.objectid;
-        const bodyNetsuite = config.bodyNetsuite || msg.payload.bodyNetsuite;
-        const objectexternalid = config.objectexternalid || msg.payload.objectexternalid;
+        const url = config.url || msg.url;
+        const method = config.method || msg.method;
+        const netsuiteobject = config.netsuiteobject || msg.netsuiteobject;
+        const limit = config.limit || msg.limit;
+        const offset = config.offset || msg.offset;
+        const objectid = config.objectid || msg.objectid;
+        const bodyNetsuite = config.bodyNetsuite || msg.bodyNetsuite;
+        const objectexternalid = config.objectexternalid || msg.objectexternalid;
 
 
         if (!url) {
